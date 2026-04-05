@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMCAR Centro Automotivo</title>
+    <style>
+        :root {
+            --blue: #0d2149;
+            --blue-light: #153270;
+            --blue-mid: #1b3f8a;
+            --orange: #f58220;
+            --orange-dark: #d96d10;
+            --black: #111;
+            --dark: #1a1a1a;
+            --gray: #555;
+            --light-gray: #f2f4f7;
+            --white: #fff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: var(--dark); line-height: 1.6; }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2.5rem;
+            background: rgba(13, 33, 73, 0.96);
+            backdrop-filter: blur(10px);
+            transition: box-shadow 0.3s, padding 0.3s;
+        }
+
+        nav.scrolled { padding: 0.6rem 2.5rem; box-shadow: 0 2px 24px rgba(0,0,0,0.3); }
+
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: 1px; }
+        .logo span { color: var(--orange); }
+
+        .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.92rem;
+            font-weight: 500; transition: color 0.3s; position: relative;
+        }
+
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 2px; background: var(--orange);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--orange); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .btn-nav {
+            background: var(--orange); color: var(--white);
+            padding: 0.55rem 1.4rem; border-radius: 6px;
+            font-weight: 600; font-size: 0.9rem;
+            text-decoration: none; transition: background 0.3s, transform 0.3s;
+        }
+
+        .btn-nav:hover { background: var(--orange-dark); transform: translateY(-1px); }
+        .btn-nav::after { display: none !important; }
+
+        .menu-toggle {
+            display: none; background: none; border: none; cursor: pointer;
+            flex-direction: column; gap: 5px; padding: 4px;
+        }
+
+        .menu-toggle span {
+            display: block; width: 26px; height: 3px;
+            background: var(--white); border-radius: 2px; transition: 0.3s;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            background: linear-gradient(135deg, rgba(13,33,73,0.92), rgba(17,17,17,0.85)),
+                        linear-gradient(45deg, #0d2149 25%, #1b3f8a 75%);
+            color: var(--white); padding: 6rem 2rem 4rem; position: relative; overflow: hidden;
+        }
+
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 30% 80%, rgba(245,130,32,0.15) 0%, transparent 60%);
+        }
+
+        .hero-content { position: relative; max-width: 800px; }
+
+        .hero-badge {
+            display: inline-block; background: rgba(245,130,32,0.2); color: var(--orange);
+            padding: 0.4rem 1.2rem; border-radius: 50px; font-size: 0.85rem;
+            font-weight: 600; margin-bottom: 1.5rem; border: 1px solid rgba(245,130,32,0.3);
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+            font-weight: 800; margin-bottom: 1rem; line-height: 1.15;
+        }
+
+        .hero-content h1 .highlight { color: var(--orange); }
+
+        .hero-content p {
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            margin-bottom: 2.5rem; opacity: 0.85; max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+
+        .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2rem; border-radius: 8px; text-decoration: none;
+            font-weight: 600; font-size: 1rem; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+            cursor: pointer; border: none;
+        }
+
+        .btn-orange { background: var(--orange); color: var(--white); }
+        .btn-orange:hover { background: var(--orange-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,130,32,0.35); }
+
+        .btn-outline { border: 2px solid rgba(255,255,255,0.4); color: var(--white); background: transparent; }
+        .btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+        /* SECTION COMMON */
+        section { padding: 5rem 2rem; }
+
+        .section-label {
+            text-align: center; color: var(--orange); font-weight: 700;
+            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            text-align: center; font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800; color: var(--blue); margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            text-align: center; color: var(--gray); margin-bottom: 3rem;
+            font-size: 1.05rem; max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+
+        /* SERVICES */
+        .services { background: var(--light-gray); }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+        }
+
+        .service-card {
+            background: var(--white); border-radius: 14px; padding: 2rem 1.5rem;
+            text-align: center; transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #e8ecf1; position: relative; overflow: hidden;
+        }
+
+        .service-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 3px; background: var(--orange); transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(13,33,73,0.1); }
+        .service-card:hover::before { transform: scaleX(1); }
+
+        .service-icon {
+            width: 64px; height: 64px; border-radius: 14px;
+            background: rgba(13,33,73,0.06); margin: 0 auto 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .service-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--blue); margin-bottom: 0.5rem; }
+        .service-card p { font-size: 0.9rem; color: var(--gray); line-height: 1.6; }
+
+        /* ABOUT */
+        .about { background: var(--white); }
+
+        .about-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 3.5rem; max-width: 1100px; margin: 0 auto; align-items: center;
+        }
+
+        .about-visual {
+            background: var(--blue); border-radius: 16px; padding: 3rem; color: var(--white);
+            position: relative; overflow: hidden; min-height: 360px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .about-visual::before {
+            content: ''; position: absolute; top: -40%; right: -20%;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(245,130,32,0.1);
+        }
+
+        .about-visual h3 { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+        .about-visual h3 span { color: var(--orange); display: block; }
+        .about-visual p { margin-top: 1rem; opacity: 0.8; font-size: 1rem; }
+
+        .about-stats {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;
+        }
+
+        .about-stat {
+            background: rgba(255,255,255,0.1); border-radius: 10px; padding: 1.2rem; text-align: center;
+        }
+
+        .about-stat .num { font-size: 1.6rem; font-weight: 800; color: var(--orange); }
+        .about-stat .lbl { font-size: 0.8rem; opacity: 0.7; }
+
+        .about-text h3 { font-size: 1.6rem; font-weight: 800; color: var(--blue); margin-bottom: 1rem; }
+        .about-text p { color: var(--gray); margin-bottom: 1rem; line-height: 1.8; }
+
+        .check-list { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.7rem; }
+
+        .check-list li {
+            display: flex; align-items: center; gap: 0.7rem;
+            font-weight: 500; color: var(--dark);
+        }
+
+        .check-icon {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--orange); color: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; flex-shrink: 0; font-weight: 700;
+        }
+
+        /* DIFFERENTIALS */
+        .diffs { background: var(--blue); color: var(--white); }
+        .diffs .section-label { color: var(--orange); }
+        .diffs .section-title { color: var(--white); }
+        .diffs .section-subtitle { color: rgba(255,255,255,0.6); }
+
+        .diffs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+        }
+
+        .diff-card {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px; padding: 2rem 1.5rem; text-align: center;
+            transition: background 0.3s, border-color 0.3s, transform 0.3s;
+        }
+
+        .diff-card:hover {
+            background: rgba(255,255,255,0.1); border-color: rgba(245,130,32,0.4);
+            transform: translateY(-4px);
+        }
+
+        .diff-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+        .diff-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .diff-card p { font-size: 0.88rem; opacity: 0.7; line-height: 1.6; }
+
+        /* CTA BANNER */
+        .cta-banner {
+            background: var(--orange); text-align: center; padding: 3.5rem 2rem;
+        }
+
+        .cta-banner h2 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 800; color: var(--white); margin-bottom: 0.5rem; }
+        .cta-banner p { color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; font-size: 1.05rem; }
+
+        .btn-white { background: var(--white); color: var(--orange); font-weight: 700; }
+        .btn-white:hover { background: var(--blue); color: var(--white); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+
+        /* CONTACT */
+        .contact { background: var(--light-gray); }
+        .contact .section-title { color: var(--blue); }
+
+        .contact-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 2.5rem; max-width: 1100px; margin: 0 auto;
+        }
+
+        .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        .contact-item {
+            display: flex; gap: 1rem; align-items: flex-start;
+            background: var(--white); border-radius: 12px; padding: 1.3rem;
+            border: 1px solid #e8ecf1; transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .contact-item:hover { border-color: var(--orange); transform: translateX(4px); }
+
+        .contact-icon-box {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: var(--blue); color: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+
+        .contact-item h4 { font-size: 0.92rem; font-weight: 700; color: var(--dark); margin-bottom: 0.15rem; }
+        .contact-item p { font-size: 0.88rem; color: var(--gray); line-height: 1.5; }
+        .contact-item a { color: var(--orange); text-decoration: none; font-weight: 600; }
+        .contact-item a:hover { text-decoration: underline; }
+
+        .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+
+        .contact-form input, .contact-form select, .contact-form textarea {
+            padding: 0.85rem 1.1rem; border-radius: 10px;
+            border: 1px solid #dde2e9; background: var(--white);
+            font-size: 0.95rem; font-family: inherit; color: var(--dark);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .contact-form input:focus, .contact-form select:focus, .contact-form textarea:focus {
+            outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(245,130,32,0.15);
+        }
+
+        .contact-form textarea { resize: vertical; min-height: 120px; }
+
+        .contact-form .btn { justify-content: center; }
+
+        /* FOOTER */
+        footer { background: var(--dark); color: rgba(255,255,255,0.6); }
+
+        .footer-grid {
+            display: grid; grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem; max-width: 1100px; margin: 0 auto; padding: 3rem 0;
+        }
+
+        .footer-brand .logo { font-size: 1.4rem; display: inline-block; margin-bottom: 0.8rem; }
+        .footer-brand p { font-size: 0.88rem; line-height: 1.7; max-width: 300px; }
+
+        .footer-col h4 { color: var(--white); font-size: 0.95rem; margin-bottom: 1rem; font-weight: 700; }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 0.5rem; }
+
+        .footer-col a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.88rem; transition: color 0.3s; }
+        .footer-col a:hover { color: var(--orange); }
+
+        .social-links { display: flex; gap: 0.7rem; margin-top: 1rem; }
+
+        .social-link {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 1.1rem; transition: background 0.3s, border-color 0.3s;
+        }
+
+        .social-link:hover { background: var(--orange); border-color: var(--orange); }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            text-align: center; padding: 1.5rem 0; font-size: 0.82rem;
+        }
+
+        /* WHATSAPP FLOAT */
+        .whatsapp-float {
+            position: fixed; bottom: 28px; right: 28px; z-index: 150;
+            width: 58px; height: 58px; border-radius: 50%;
+            background: #25d366; color: var(--white); font-size: 1.7rem;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; box-shadow: 0 4px 20px rgba(37,211,102,0.4); transition: transform 0.3s, box-shadow 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+        .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.5); }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.4); }
+            50% { box-shadow: 0 4px 20px rgba(37,211,102,0.6), 0 0 0 10px rgba(37,211,102,0.1); }
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 100px; right: 28px;
+            background: var(--blue); color: var(--white);
+            padding: 1rem 1.5rem; border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transform: translateY(100px); opacity: 0;
+            transition: 0.4s ease; z-index: 200; font-size: 0.9rem;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* SCROLL REVEAL */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1.2rem; }
+
+            .menu-toggle { display: flex; }
+
+            .nav-links {
+                display: none; flex-direction: column;
+                position: absolute; top: 100%; left: 0; width: 100%;
+                background: var(--blue); padding: 1.5rem; gap: 1rem;
+            }
+
+            .nav-links.open { display: flex; }
+
+            .about-grid, .contact-grid, .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid { gap: 1.5rem; }
+
+            .about-stats { grid-template-columns: 1fr 1fr; }
+
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .btn-outline { width: 100%; justify-content: center; }
+
+            .services-grid, .diffs-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .services-grid, .diffs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+    <a href="#inicio" class="logo">VM<span>CAR</span></a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="#inicio">In&iacute;cio</a></li>
+        <li><a href="#servicos">Servi&ccedil;os</a></li>
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#contato">Contato</a></li>
+        <li><a href="#contato" class="btn-nav">Agendar Servi&ccedil;o</a></li>
+    </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+    <div class="hero-content">
+        <div class="hero-badge">&#9733; Centro Automotivo de Confian&ccedil;a</div>
+        <h1>Seu carro em boas m&atilde;os com quem <span class="highlight">entende do assunto</span></h1>
+        <p>Revis&atilde;o, manuten&ccedil;&atilde;o e diagn&oacute;stico com tecnologia de ponta, equipe qualificada e pre&ccedil;o justo. Tudo em um s&oacute; lugar.</p>
+        <div class="hero-buttons">
+            <a href="#contato" class="btn btn-orange">&#128222; Agendar Servi&ccedil;o</a>
+            <a href="#servicos" class="btn btn-outline">Ver Servi&ccedil;os</a>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="servicos">
+    <p class="section-label reveal">O que fazemos</p>
+    <h2 class="section-title reveal">Nossos Servi&ccedil;os</h2>
+    <p class="section-subtitle reveal">Oferecemos solu&ccedil;&otilde;es completas para a manuten&ccedil;&atilde;o do seu ve&iacute;culo</p>
+
+    <div class="services-grid">
+        <div class="service-card reveal">
+            <div class="service-icon">&#128295;</div>
+            <h3>Revis&atilde;o Geral</h3>
+            <p>Revis&atilde;o completa conforme manual do fabricante, garantindo seguran&ccedil;a e desempenho.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#128702;</div>
+            <h3>Troca de &Oacute;leo</h3>
+            <p>Troca de &oacute;leo e filtros com produtos de primeira linha para maior vida &uacute;til do motor.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#9881;</div>
+            <h3>Sistema de Freios</h3>
+            <p>Inspe&ccedil;&atilde;o, troca de pastilhas, discos e fluido de freio com garantia de servi&ccedil;o.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#128736;</div>
+            <h3>Suspens&atilde;o</h3>
+            <p>Amortecedores, molas, bandejas e alinhamento para conforto e estabilidade.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#128269;</div>
+            <h3>Diagn&oacute;stico Eletr&ocirc;nico</h3>
+            <p>Scanner automotivo de &uacute;ltima gera&ccedil;&atilde;o para identificar falhas com precis&atilde;o.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#128267;</div>
+            <h3>El&eacute;trica Automotiva</h3>
+            <p>Diagn&oacute;stico e reparo em sistemas el&eacute;tricos, alternador, motor de partida e ilumina&ccedil;&atilde;o.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#127777;</div>
+            <h3>Ar-Condicionado</h3>
+            <p>Carga de g&aacute;s, limpeza do sistema e troca do filtro de cabine.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">&#128663;</div>
+            <h3>Alinhamento e Balanceamento</h3>
+            <p>Ajuste preciso para evitar desgaste irregular dos pneus e vibra&ccedil;&otilde;es.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="sobre">
+    <div class="about-grid">
+        <div class="about-visual reveal">
+            <h3>Mais de 15 <span>Anos</span></h3>
+            <p>cuidando do seu ve&iacute;culo com excel&ecirc;ncia e transpar&ecirc;ncia.</p>
+            <div class="about-stats">
+                <div class="about-stat">
+                    <div class="num" data-target="12000">0</div>
+                    <div class="lbl">Clientes atendidos</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num" data-target="98">0</div>
+                    <div class="lbl">% Satisfa&ccedil;&atilde;o</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num" data-target="15">0</div>
+                    <div class="lbl">Anos de mercado</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num" data-target="8">0</div>
+                    <div class="lbl">Profissionais</div>
+                </div>
+            </div>
+        </div>
+        <div class="about-text reveal">
+            <h3>Por que escolher a VMCAR?</h3>
+            <p>Desde 2011, a VMCAR Centro Automotivo &eacute; refer&ecirc;ncia em servi&ccedil;os automotivos na regi&atilde;o. Trabalhamos com transpar&ecirc;ncia, pre&ccedil;os justos e compromisso com a qualidade.</p>
+            <p>Nossa equipe &eacute; formada por profissionais certificados e em constante atualiza&ccedil;&atilde;o para acompanhar as inova&ccedil;&otilde;es do setor automotivo.</p>
+            <ul class="check-list">
+                <li><span class="check-icon">&#10003;</span> Or&ccedil;amento detalhado antes de qualquer servi&ccedil;o</li>
+                <li><span class="check-icon">&#10003;</span> Pe&ccedil;as originais e de fornecedores certificados</li>
+                <li><span class="check-icon">&#10003;</span> Garantia em todos os servi&ccedil;os realizados</li>
+                <li><span class="check-icon">&#10003;</span> Atendimento humanizado e transparente</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- DIFFERENTIALS -->
+<section class="diffs">
+    <p class="section-label reveal">Nossos diferenciais</p>
+    <h2 class="section-title reveal">O Que Nos Diferencia</h2>
+    <p class="section-subtitle reveal">Mais do que uma oficina, somos parceiro do seu dia a dia</p>
+
+    <div class="diffs-grid">
+        <div class="diff-card reveal">
+            <div class="diff-icon">&#9889;</div>
+            <h3>Atendimento R&aacute;pido</h3>
+            <p>Sem enrola&ccedil;&atilde;o. Identificamos e resolvemos o problema com agilidade.</p>
+        </div>
+        <div class="diff-card reveal">
+            <div class="diff-icon">&#127942;</div>
+            <h3>Equipe Qualificada</h3>
+            <p>Mec&acirc;nicos treinados e certificados pelas melhores escolas do setor.</p>
+        </div>
+        <div class="diff-card reveal">
+            <div class="diff-icon">&#128187;</div>
+            <h3>Equipamentos Modernos</h3>
+            <p>Scanner, alinhamento 3D e ferramentas de precis&atilde;o de &uacute;ltima gera&ccedil;&atilde;o.</p>
+        </div>
+        <div class="diff-card reveal">
+            <div class="diff-icon">&#128737;</div>
+            <h3>Garantia de Servi&ccedil;o</h3>
+            <p>Todos os servi&ccedil;os com garantia. Sua tranquilidade &eacute; nossa prioridade.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+    <h2 class="reveal">Seu carro precisa de cuidado? Fale com a gente agora!</h2>
+    <p class="reveal">Agende pelo WhatsApp e tenha atendimento priorit&aacute;rio.</p>
+    <a href="https://wa.me/5511998765432?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20servi%C3%A7o%20na%20VMCAR." target="_blank" class="btn btn-white reveal">&#128222; Chamar no WhatsApp</a>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contato">
+    <p class="section-label reveal">Fale conosco</p>
+    <h2 class="section-title reveal">Entre em Contato</h2>
+    <p class="section-subtitle reveal">Estamos prontos para atender voc&ecirc;</p>
+
+    <div class="contact-grid">
+        <div class="contact-info">
+            <div class="contact-item reveal">
+                <div class="contact-icon-box">&#128222;</div>
+                <div>
+                    <h4>Telefone / WhatsApp</h4>
+                    <p><a href="https://wa.me/5511998765432">(11) 99876-5432</a></p>
+                </div>
+            </div>
+            <div class="contact-item reveal">
+                <div class="contact-icon-box">&#128205;</div>
+                <div>
+                    <h4>Endere&ccedil;o</h4>
+                    <p>Av. Principal, 1250 - Bairro Centro<br>S&atilde;o Paulo - SP, 01000-000</p>
+                </div>
+            </div>
+            <div class="contact-item reveal">
+                <div class="contact-icon-box">&#128337;</div>
+                <div>
+                    <h4>Hor&aacute;rio de Funcionamento</h4>
+                    <p>Seg a Sex: 08h &ndash; 18h<br>S&aacute;b: 08h &ndash; 13h</p>
+                </div>
+            </div>
+            <div class="contact-item reveal">
+                <div class="contact-icon-box">&#9993;</div>
+                <div>
+                    <h4>E-mail</h4>
+                    <p><a href="mailto:contato@vmcar.com.br">contato@vmcar.com.br</a></p>
+                </div>
+            </div>
+        </div>
+
+        <form class="contact-form reveal" id="contactForm">
+            <input type="text" placeholder="Seu nome *" required>
+            <input type="text" placeholder="Telefone / WhatsApp *" required>
+            <input type="text" placeholder="Modelo do ve&iacute;culo (ex: Honda Civic 2020)">
+            <select>
+                <option value="" disabled selected>Selecione o servi&ccedil;o</option>
+                <option>Revis&atilde;o Geral</option>
+                <option>Troca de &Oacute;leo</option>
+                <option>Freios</option>
+                <option>Suspens&atilde;o</option>
+                <option>Diagn&oacute;stico Eletr&ocirc;nico</option>
+                <option>El&eacute;trica Automotiva</option>
+                <option>Ar-Condicionado</option>
+                <option>Alinhamento e Balanceamento</option>
+                <option>Outro</option>
+            </select>
+            <textarea placeholder="Descreva o problema ou o que precisa..."></textarea>
+            <button type="submit" class="btn btn-orange">&#128228; Enviar Solicita&ccedil;&atilde;o</button>
+        </form>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <a href="#inicio" class="logo">VM<span>CAR</span></a>
+            <p>Centro automotivo com &ecirc;nfase em qualidade, transpar&ecirc;ncia e confian&ccedil;a. Seu carro em boas m&atilde;os desde 2011.</p>
+            <div class="social-links">
+                <a href="#" class="social-link" title="Instagram">&#128247;</a>
+                <a href="#" class="social-link" title="Facebook">&#128100;</a>
+                <a href="https://wa.me/5511998765432" class="social-link" target="_blank" title="WhatsApp">&#128222;</a>
+            </div>
+        </div>
+        <div class="footer-col">
+            <h4>Links R&aacute;pidos</h4>
+            <ul>
+                <li><a href="#inicio">In&iacute;cio</a></li>
+                <li><a href="#servicos">Servi&ccedil;os</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Servi&ccedil;os</h4>
+            <ul>
+                <li><a href="#servicos">Revis&atilde;o Geral</a></li>
+                <li><a href="#servicos">Troca de &Oacute;leo</a></li>
+                <li><a href="#servicos">Freios</a></li>
+                <li><a href="#servicos">Suspens&atilde;o</a></li>
+                <li><a href="#servicos">Diagn&oacute;stico</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; 2026 VMCAR Centro Automotivo. Todos os direitos reservados.
+    </div>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/5511998765432?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20VMCAR." class="whatsapp-float" target="_blank" title="Fale pelo WhatsApp">&#128222;</a>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ── NAV ──
+    const nav = document.getElementById('navbar');
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60));
+
+    menuToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+    // ── COUNTER ANIMATION ──
+    function animateCounters() {
+        document.querySelectorAll('.num[data-target]').forEach(el => {
+            if (el.dataset.animated) return;
+            el.dataset.animated = 'true';
+            const target = +el.dataset.target;
+            const duration = 2000;
+            const start = performance.now();
+
+            function update(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = Math.floor(eased * target);
+                el.textContent = target >= 1000 ? value.toLocaleString('pt-BR') + '+' : value + (target < 20 ? '+' : '%');
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        });
+    }
+
+    // ── SCROLL REVEAL ──
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // Counter observer
+    const counterSection = document.querySelector('.about-stats');
+    if (counterSection) {
+        new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) { animateCounters(); }
+        }, { threshold: 0.3 }).observe(counterSection);
+    }
+
+    // ── FORM SUBMIT ──
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        showToast('Solicita&ccedil;&atilde;o enviada! Entraremos em contato em breve.');
+        e.target.reset();
+    });
+
+    // ── TOAST ──
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+</script>
+
+</body>
+</html>
